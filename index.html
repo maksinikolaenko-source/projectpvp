@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ProjectPvp - Анархия</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: linear-gradient(135deg, #1a0000 0%, #0d0d0d 50%, #1a0000 100%);
+            color: white;
+            font-family: 'Inter', Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0d0d0d; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, #ff3333, #990000); 
+            border-radius: 5px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #ff3333; }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-glow::before, .bg-glow::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: floatGlow 20s ease-in-out infinite;
+        }
+        .bg-glow::before {
+            width: 600px; height: 600px;
+            background: #ff3333;
+            top: -200px; left: -200px;
+        }
+        .bg-glow::after {
+            width: 500px; height: 500px;
+            background: #990000;
+            bottom: -150px; right: -150px;
+            animation-delay: -10s;
+        }
+        @keyframes floatGlow {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, 50px) scale(1.1); }
+            66% { transform: translate(-50px, 100px) scale(0.9); }
+        }
+
+        nav {
+            background: rgba(13, 13, 13, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            border-bottom: 1px solid rgba(255, 51, 51, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav a {
+            color: #aaaaaa;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            padding: 8px 16px;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 0.3px;
+        }
+        nav a:hover { color: #ff6666; }
+        nav a.active { color: #ffffff; }
+        
+        .nav-indicator {
+            position: absolute;
+            bottom: 8px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff3333, #ff6666);
+            border-radius: 2px;
+            box-shadow: 0 0 10px #ff3333, 0 0 20px rgba(255, 51, 51, 0.5);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1;
+        }
+        
+        .discord-btn {
+            background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+            color: white !important;
+            padding: 8px 18px !important;
+            border-radius: 6px;
+            font-weight: 700 !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s !important;
+        }
+        .discord-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.5);
+            color: white !important;
+        }
+        .discord-btn svg { width: 18px; height: 18px; }
+
+        .hero { 
+            text-align: center; 
+            padding: 150px 20px 100px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 { 
+            font-size: 96px; 
+            margin: 0; 
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #ff2222;
+            text-shadow: 
+                0 0 20px rgba(255, 34, 34, 0.8),
+                0 0 40px rgba(255, 34, 34, 0.6),
+                0 0 60px rgba(255, 34, 34, 0.4),
+                0 0 80px rgba(255, 34, 34, 0.2);
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+        @keyframes titlePulse {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 20px rgba(255, 34, 34, 0.8),
+                    0 0 40px rgba(255, 34, 34, 0.6),
+                    0 0 60px rgba(255, 34, 34, 0.4),
+                    0 0 80px rgba(255, 34, 34, 0.2);
+            }
+            50% { 
+                text-shadow: 
+                    0 0 30px rgba(255, 34, 34, 1),
+                    0 0 60px rgba(255, 34, 34, 0.8),
+                    0 0 90px rgba(255, 34, 34, 0.6),
+                    0 0 120px rgba(255, 34, 34, 0.4);
+            }
+        }
+        
+        .ip-section { margin-top: 50px; display: inline-block; }
+        .ip-label { 
+            font-size: 13px; 
+            color: #ff6666; 
+            letter-spacing: 4px; 
+            text-transform: uppercase; 
+            margin-bottom: 25px; 
+            font-weight: 700; 
+        }
+        .ip-button {
+            background: linear-gradient(135deg, #ff3333 0%, #cc0000 100%);
+            color: white; border: none; padding: 22px 60px; font-size: 22px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(255, 51, 51, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .ip-button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        .ip-button:hover::before { left: 100%; }
+        .ip-button:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 15px 50px rgba(255, 51, 51, 0.6); 
+        }
+
+        .features { 
+            padding: 100px 20px; 
+            text-align: center; 
+            background: linear-gradient(180deg, transparent 0%, rgba(17, 17, 17, 0.5) 50%, transparent 100%);
+            position: relative;
+            z-index: 1;
+        }
+        .features h2 {
+            font-size: 42px; 
+            margin: 0 0 30px 0; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ff3333 0%, #ffffff 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+            position: relative; 
+            display: inline-block;
+            font-weight: 900;
+        }
+        .features h2::after {
+            content: ''; 
+            position: absolute; 
+            bottom: -15px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 80px; 
+            height: 3px; 
+            background: linear-gradient(90deg, transparent, #ff3333, transparent);
+        }
+        .features-subtitle {
+            color: #cccccc; 
+            font-size: 18px; 
+            margin: 40px auto 50px auto; 
+            padding: 15px 30px;
+            border: 1px solid rgba(255, 51, 51, 0.3); 
+            border-radius: 50px; 
+            display: inline-block; 
+            max-width: 600px;
+            font-style: italic; 
+            background: rgba(255, 51, 51, 0.05);
+        }
+
+        .feature-card-highlight {
+            background: rgba(13, 13, 13, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 3px; 
+            width: 500px; 
+            max-width: 90%;
+            margin: 0 auto 40px auto; 
+            text-align: left; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(255, 51, 51, 0.2);
+            border-radius: 12px;
+        }
+        .feature-card-highlight::before {
+            content: ''; 
+            position: absolute; 
+            top: -50%; 
+            left: -50%; 
+            width: 200%; 
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 270deg, #ff3333 300deg, #ff6666 330deg, transparent 360deg);
+            animation: rotate 4s linear infinite;
+        }
+        .feature-card-highlight::after { 
+            content: ''; 
+            position: absolute; 
+            inset: 3px; 
+            background: #0d0d0d; 
+            z-index: 1; 
+            border-radius: 10px;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .feature-card-highlight .card-inner { position: relative; z-index: 2; padding: 35px; }
+        .feature-card-highlight .highlight-badge {
+            display: inline-block; 
+            font-size: 11px; 
+            color: #ff3333; 
+            letter-spacing: 2px;
+            text-transform: uppercase; 
+            margin-bottom: 10px; 
+            font-weight: 700;
+            border: 1px solid #ff3333; 
+            padding: 4px 10px; 
+            border-radius: 3px;
+        }
+        .feature-card-highlight h3 { 
+            color: #ff3333; 
+            font-size: 26px; 
+            margin: 10px 0 15px 0; 
+            font-weight: 700;
+        }
+        .feature-card-highlight p { font-size: 16px; color: #aaaaaa; line-height: 1.6; margin: 0; }
+
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: rgba(13, 13, 13, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 51, 0.2);
+            padding: 30px; 
+            text-align: left; 
+            transition: all 0.4s;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff3333, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover { 
+            transform: translateY(-5px); 
+            border-color: rgba(255, 51, 51, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 51, 51, 0.15);
+        }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-card h3 { 
+            color: #ff3333; 
+            font-size: 22px; 
+            margin-top: 0; 
+            margin-bottom: 15px; 
+            font-weight: 700;
+        }
+        .feature-card p { font-size: 15px; color: #aaaaaa; line-height: 1.6; margin: 0; }
+
+        .shop-container { 
+            max-width: 1300px; 
+            margin: 0 auto; 
+            padding: 80px 20px; 
+            position: relative;
+            z-index: 1;
+        }
+        .shop-title {
+            text-align: center; 
+            font-size: 56px; 
+            margin: 0 0 20px 0; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ff3333 0%, #ffffff 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+            font-weight: 900;
+        }
+        .shop-subtitle { 
+            text-align: center; 
+            color: #cccccc; 
+            font-size: 18px; 
+            margin-bottom: 60px; 
+            font-style: italic; 
+        }
+        
+        .shop-section-wrapper { text-align: center; margin-bottom: 40px; }
+        .shop-section-title {
+            font-size: 32px; 
+            color: #ff3333; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            padding-bottom: 15px; 
+            border-bottom: 2px solid #ff3333;
+            display: inline-block;
+            font-weight: 700;
+        }
+        
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        /* Карточки привилегий — свечение через box-shadow + JS tilt */
+        .priv-card {
+            background: rgba(13, 13, 13, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px 25px 25px 25px;
+            text-align: center;
+            position: relative;
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+            border: 1px solid rgba(var(--card-rgb, 255, 51, 51), 0.2);
+            display: flex;
+            flex-direction: column;
+            transform-style: preserve-3d;
+            /* Свечение вокруг карточки через box-shadow */
+            box-shadow: 
+                0 0 20px rgba(var(--card-rgb, 255, 51, 51), 0.1),
+                0 0 40px rgba(var(--card-rgb, 255, 51, 51), 0.05);
+        }
+        
+        .priv-card:hover {
+            border-color: rgba(var(--card-rgb, 255, 51, 51), 0.5);
+            box-shadow: 
+                0 0 30px rgba(var(--card-rgb, 255, 51, 51), 0.25),
+                0 0 60px rgba(var(--card-rgb, 255, 51, 51), 0.15),
+                0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .priv-card.expanded:hover {
+            box-shadow: 
+                0 0 20px rgba(var(--card-rgb, 255, 51, 51), 0.15),
+                0 0 40px rgba(var(--card-rgb, 255, 51, 51), 0.1),
+                0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .priv-name {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--card-color, #ff3333);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 10px 0 5px 0;
+            text-shadow: 0 0 20px rgba(var(--card-rgb, 255, 51, 51), 0.6);
+        }
+        
+        .priv-price {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 10px 0 20px 0;
+        }
+        .priv-price span { font-size: 18px; color: #666; font-weight: 400; }
+        
+        .priv-features-short {
+            font-size: 13px;
+            color: #bbb;
+            margin: 0 10px 15px 10px;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .priv-features-short div {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .priv-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            text-align: left;
+            margin: 0 10px;
+        }
+        .priv-card.expanded .priv-details {
+            max-height: 1500px;
+        }
+        
+        .details-section { margin-bottom: 15px; }
+        .details-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--card-color, #ff3333);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(var(--card-rgb, 255, 51, 51), 0.3);
+        }
+        .details-list { list-style: none; padding: 0; margin: 0; }
+        .details-list li {
+            font-size: 12px;
+            color: #aaa;
+            padding: 4px 0 4px 15px;
+            position: relative;
+            line-height: 1.4;
+        }
+        .details-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            color: var(--card-color, #ff3333);
+        }
+        .details-list li code {
+            background: rgba(255, 51, 51, 0.15);
+            color: var(--card-color, #ff3333);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+        }
+        .details-inherits {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255,255,255,0.1);
+        }
+        
+        .priv-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 0 15px;
+        }
+        
+        /* Кнопки поверх tilt-эффекта */
+        .buy-btn, .details-btn, .case-btn, .service-btn {
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+        
+        .buy-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: var(--card-color, #ff3333);
+            border: 2px solid var(--card-color, #ff3333);
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .buy-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(var(--card-rgb, 255, 51, 51), 0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .buy-btn:hover {
+            background: var(--card-color, #ff3333);
+            color: white;
+            box-shadow: 0 0 25px rgba(var(--card-rgb, 255, 51, 51), 0.7);
+            transform: scale(1.03);
+        }
+        
+        .buy-btn:hover::before { left: 100%; }
+        
+        .details-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: #888;
+            border: 1px solid #333;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .details-btn:hover {
+            color: white;
+            border-color: var(--card-color, #ff3333);
+            background: rgba(var(--card-rgb, 255, 51, 51), 0.1);
+        }
+
+        .priv-baron { --card-color: #a0a0a0; --card-rgb: 160, 160, 160; }
+        .priv-strazh { --card-color: #5fd4d4; --card-rgb: 95, 212, 212; }
+        .priv-geroy { --card-color: #55ff55; --card-rgb: 85, 255, 85; }
+        .priv-aspid { --card-color: #5555ff; --card-rgb: 85, 85, 255; }
+        .priv-squid { --card-color: #00aaaa; --card-rgb: 0, 170, 170; }
+        .priv-glava { --card-color: #ffaa00; --card-rgb: 255, 170, 0; }
+        .priv-elita { --card-color: #ff55ff; --card-rgb: 255, 85, 255; }
+        .priv-titan { --card-color: #ff5555; --card-rgb: 255, 85, 85; }
+        .priv-princ { --card-color: #ffaa55; --card-rgb: 255, 170, 85; }
+        .priv-knyaz { --card-color: #aa0000; --card-rgb: 170, 0, 0; }
+        .priv-gercog { --card-color: #555555; --card-rgb: 85, 85, 85; }
+
+        .case-card {
+            background: rgba(13, 13, 13, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px 25px 25px 25px;
+            text-align: center;
+            border: 2px solid #ff6600;
+            transition: all 0.4s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 260px;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.15), 0 0 40px rgba(255, 102, 0, 0.08);
+        }
+        .case-card:hover { transform: translateY(-8px); border-color: #ff9933; box-shadow: 0 0 30px rgba(255, 102, 0, 0.3), 0 20px 50px rgba(0,0,0,0.5); }
+        .case-card.super { border-color: #ff00ff; box-shadow: 0 0 20px rgba(255, 0, 255, 0.15), 0 0 40px rgba(255, 0, 255, 0.08); }
+        .case-card.super:hover { border-color: #ff66ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.3), 0 20px 50px rgba(0,0,0,0.5); }
+        .case-card.skins { border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.15), 0 0 40px rgba(0, 255, 136, 0.08); }
+        .case-card.skins:hover { border-color: #66ffaa; box-shadow: 0 0 30px rgba(0, 255, 136, 0.3), 0 20px 50px rgba(0,0,0,0.5); }
+        .case-card.tokens { border-color: #00bfff; box-shadow: 0 0 20px rgba(0, 191, 255, 0.15), 0 0 40px rgba(0, 191, 255, 0.08); }
+        .case-card.tokens:hover { border-color: #66d4ff; box-shadow: 0 0 30px rgba(0, 191, 255, 0.3), 0 20px 50px rgba(0,0,0,0.5); }
+        
+        .case-name { font-size: 20px; font-weight: 700; color: #ff6600; text-transform: uppercase; margin: 10px 0; letter-spacing: 1px; }
+        .case-card.super .case-name { color: #ff00ff; }
+        .case-card.skins .case-name { color: #00ff88; }
+        .case-card.tokens .case-name { color: #00bfff; }
+        .case-price { font-size: 36px; font-weight: 900; color: #fff; margin: 10px 0; }
+        .case-price span { font-size: 18px; color: #666; font-weight: 400; }
+        .case-desc { font-size: 13px; color: #999; margin-bottom: 15px; font-style: italic; flex-grow: 1; }
+        
+        .case-btn {
+            display: block; width: calc(100% - 30px); margin: 15px 15px 0 15px; padding: 14px;
+            background: transparent;
+            color: #ff6600;
+            border: 2px solid #ff6600;
+            font-size: 14px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            border-radius: 8px; transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .case-card.super .case-btn { color: #ff00ff; border-color: #ff00ff; }
+        .case-card.skins .case-btn { color: #00ff88; border-color: #00ff88; }
+        .case-card.tokens .case-btn { color: #00bfff; border-color: #00bfff; }
+        .case-btn:hover { background: currentColor; color: white; box-shadow: 0 0 25px currentColor; transform: scale(1.03); }
+
+        .service-card {
+            background: rgba(13, 13, 13, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px 25px 25px 25px;
+            text-align: center;
+            border: 2px solid #ff3333;
+            transition: all 0.4s;
+            display: flex;
+            flex-direction: column;
+            min-height: 260px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.15), 0 0 40px rgba(255, 51, 51, 0.08);
+        }
+        .service-card:hover { transform: translateY(-8px); border-color: #ff6666; box-shadow: 0 0 30px rgba(255, 51, 51, 0.3), 0 20px 50px rgba(0,0,0,0.5); }
+        .service-name { font-size: 22px; font-weight: 700; color: #ff3333; text-transform: uppercase; margin: 10px 0; letter-spacing: 1px; }
+        .service-price { font-size: 36px; font-weight: 900; color: #fff; margin: 10px 0; }
+        .service-price span { font-size: 18px; color: #666; font-weight: 400; }
+        .service-desc { font-size: 13px; color: #999; margin-bottom: 15px; font-style: italic; flex-grow: 1; }
+        .service-btn {
+            display: block; width: calc(100% - 30px); margin: 15px 15px 0 15px; padding: 14px;
+            background: transparent; color: #ff3333; border: 2px solid #ff3333;
+            font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            border-radius: 8px; transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .service-btn:hover { background: #ff3333; color: white; box-shadow: 0 0 25px rgba(255, 51, 51, 0.6); transform: scale(1.03); }
+
+        .rules-container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 80px 20px; 
+            position: relative;
+            z-index: 1;
+        }
+        .rules-title { 
+            text-align: center; 
+            font-size: 56px; 
+            color: #ff3333; 
+            margin-bottom: 60px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-shadow: 0 0 30px rgba(255, 51, 51, 0.5);
+            font-weight: 900;
+        }
+        .rules-section { 
+            background: rgba(13, 13, 13, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 51, 0.2);
+            border-radius: 12px;
+            padding: 30px; 
+            margin-bottom: 30px; 
+        }
+        .rules-section h2 { 
+            color: #ff3333; 
+            font-size: 28px; 
+            margin-top: 0; 
+            margin-bottom: 20px; 
+            text-transform: uppercase; 
+            font-weight: 700;
+        }
+        .rule-item { margin-bottom: 15px; padding-left: 20px; border-left: 2px solid #ff3333; }
+        .rule-item strong { color: #ff6666; font-weight: 700; }
+        .rule-item p { color: #cccccc; font-size: 15px; line-height: 1.6; margin: 5px 0; }
+
+        .support-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .support-title {
+            text-align: center;
+            font-size: 56px;
+            color: #ff3333;
+            margin-bottom: 60px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 30px rgba(255, 51, 51, 0.5);
+            font-weight: 900;
+        }
+        .support-discord {
+            text-align: center;
+            padding: 40px;
+            background: rgba(13, 13, 13, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(88, 101, 242, 0.3);
+            border-radius: 16px;
+        }
+        .support-discord h3 {
+            color: #5865F2;
+            font-size: 24px;
+            margin: 0 0 15px 0;
+        }
+        .support-discord p {
+            color: #aaaaaa;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+        .discord-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .discord-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.5);
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 51, 51, 0.2);
+            padding: 60px 20px 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .footer-content {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .footer-logo {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ff3333;
+            margin-bottom: 25px;
+            text-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
+            letter-spacing: -1px;
+        }
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 51, 51, 0.08);
+            border: 1px solid rgba(255, 51, 51, 0.2);
+            padding: 12px 22px;
+            border-radius: 50px;
+            color: #cccccc;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .social-link:hover {
+            background: rgba(255, 51, 51, 0.2);
+            border-color: rgba(255, 51, 51, 0.5);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 51, 51, 0.2);
+        }
+        .social-link svg {
+            width: 20px;
+            height: 20px;
+        }
+        .footer-legal {
+            text-align: center;
+            color: #555;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .footer-legal p {
+            margin: 0;
+        }
+        .footer-copy {
+            text-align: center;
+            color: #444;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .copy-message {
+            display: none; 
+            position: fixed; 
+            top: 100px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff3333 0%, #990000 100%);
+            color: white; 
+            padding: 18px 35px; 
+            font-size: 16px;
+            font-weight: 700; 
+            border-radius: 12px; 
+            z-index: 1000; 
+            animation: fadeIn 0.3s;
+            box-shadow: 0 10px 40px rgba(255, 51, 51, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page {
+            animation: pageFadeIn 0.5s ease;
+        }
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .click-particle {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: #ff3333;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: particleFade 0.8s ease-out forwards;
+        }
+        @keyframes particleFade {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+    <div class="bg-glow"></div>
+
+    <nav>
+        <div class="nav-indicator" id="navIndicator"></div>
+        <a data-page="home" onclick="showPage('home', this)">Главная</a>
+        <a data-page="shop" onclick="showPage('shop', this)">Магазин</a>
+        <a data-page="rules" onclick="showPage('rules', this)">Правила</a>
+        <a data-page="support" onclick="showPage('support', this)">Поддержка</a>
+        <a class="discord-btn" onclick="window.open('https://discord.gg/YOUR_LINK', '_blank')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            Discord
+        </a>
+    </nav>
+
+    <div id="home-page" class="page">
+        <div class="hero">
+            <h1>ProjectPvp</h1>
+            <div class="ip-section">
+                <div class="ip-label">IP СЕРВЕРА</div>
+                <button class="ip-button" onclick="copyIP()">
+                    <span>⧉</span>
+                    <span>ProjectPvp.su</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>Сервер, который сделал игрок,<br>а не бизнесмен</h2>
+            <p class="features-subtitle">Есть же куча других серверов, почему мы?</p>
+
+            <div class="feature-card-highlight fade-in">
+                <div class="card-inner">
+                    <span class="highlight-badge">Ключевая особенность</span>
+                    <h3>Настоящие PvP механики</h3>
+                    <p>Отдача, отхил, тайминги — я сам играю и чувствую, как это работает. Другие сервера просто копируют обёртку, а мы добавили не как должно быть в PvP, а как есть на самом деле.</p>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <h3>Античит</h3>
+                    <p>Скажем прямо: идеального античита не существует, даже FT не всегда справляется с читерами. Мы не даем пустых обещаний, мы просто делаем свою работу. Модерация и разработчики античита делают всё для комфортной игры и быстрого реагирования.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <h3>Модерация</h3>
+                    <p>Мы не обещаем мгновенной реакции круглосуточно. Но когда модератор на сервере — он не прохлаждается, а делает всё возможное для честной игры. Без громких слов, мы просто делаем своё дело.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <h3>Комьюнити, к которому прислушиваются</h3>
+                    <p>В нашем Дискорд-сервере есть специальные разделы для ваших идей. Мы читаем всё, но не все предложения сможем реализовать. Мы берем только то, что реально улучшает игру и делает ее интереснее.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop-page" class="page" style="display: none;">
+        <div class="shop-container">
+            <h1 class="shop-title">Магазин</h1>
+            <p class="shop-subtitle">Поддержи сервер — получи преимущества</p>
+
+            <div class="shop-section-wrapper">
+                <h2 class="shop-section-title">Донат-привилегии</h2>
+            </div>
+            <div class="shop-grid" id="privileges-grid"></div>
+
+            <div class="shop-section-wrapper" style="margin-top: 80px;">
+                <h2 class="shop-section-title">Кейсы</h2>
+            </div>
+            <div class="shop-grid">
+                <div class="case-card fade-in">
+                    <div class="case-name">Донат-кейс</div>
+                    <div class="case-price">39<span>₽</span></div>
+                    <div class="case-desc">Описание скоро</div>
+                    <button class="case-btn" onclick="buyItem('Донат-кейс', 39)">Открыть</button>
+                </div>
+                <div class="case-card super fade-in">
+                    <div class="case-name">Донат-кейс Супер</div>
+                    <div class="case-price">99<span>₽</span></div>
+                    <div class="case-desc">Описание скоро</div>
+                    <button class="case-btn" onclick="buyItem('Донат-кейс Супер', 99)">Открыть</button>
+                </div>
+                <div class="case-card skins fade-in">
+                    <div class="case-name">Кейс со скинами</div>
+                    <div class="case-price">15<span>₽</span></div>
+                    <div class="case-desc">Описание скоро</div>
+                    <button class="case-btn" onclick="buyItem('Кейс со скинами', 15)">Открыть</button>
+                </div>
+                <div class="case-card tokens fade-in">
+                    <div class="case-name">Кейс с токенами</div>
+                    <div class="case-price">1000 ТК = 10<span>₽</span></div>
+                    <div class="case-desc">Минимальный заказ от 10 рублей</div>
+                    <button class="case-btn" onclick="buyItem('Токены', 10)">Купить токены</button>
+                </div>
+            </div>
+
+            <div class="shop-section-wrapper" style="margin-top: 80px;">
+                <h2 class="shop-section-title">Услуги</h2>
+            </div>
+            <div class="shop-grid">
+                <div class="service-card fade-in">
+                    <div class="service-name">Разбан</div>
+                    <div class="service-price">99<span>₽</span></div>
+                    <div class="service-desc">Снятие бана с аккаунта</div>
+                    <button class="service-btn" onclick="buyItem('Разбан', 99)">Купить</button>
+                </div>
+                <div class="service-card fade-in">
+                    <div class="service-name">Разбан навсегда</div>
+                    <div class="service-price">599<span>₽</span></div>
+                    <div class="service-desc">Полное снятие бана</div>
+                    <button class="service-btn" onclick="buyItem('Разбан навсегда', 599)">Купить</button>
+                </div>
+                <div class="service-card fade-in">
+                    <div class="service-name">Размут</div>
+                    <div class="service-price">19<span>₽</span></div>
+                    <div class="service-desc">Снятие мута с аккаунта</div>
+                    <button class="service-btn" onclick="buyItem('Размут', 19)">Купить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rules-page" class="page" style="display: none;">
+        <div class="rules-container">
+            <h1 class="rules-title">Правила ProjectPvp</h1>
+            <div class="rules-section fade-in">
+                <h2>Основное</h2>
+                <div class="rule-item"><p><strong>1.1.</strong> Начал играть — значит принял правила.</p></div>
+                <div class="rule-item"><p><strong>1.2.</strong> Администрация может наказать за то, чего нет в списке правил.</p></div>
+                <div class="rule-item"><p><strong>1.3.</strong> Мы не отвечаем за лаги, баги, потерю вещей.</p></div>
+                <div class="rule-item"><p><strong>1.4.</strong> Донат — добровольное пожертвование. Деньги не возвращаются.</p></div>
+                <div class="rule-item"><p><strong>1.5.</strong> Правила могут меняться без предупреждения.</p></div>
+            </div>
+            <div class="rules-section fade-in">
+                <h2>Чат</h2>
+                <div class="rule-item"><p><strong>2.1.</strong> Спам и флуд (5+ сообщений) — мут 1 час.</p></div>
+                <div class="rule-item"><p><strong>2.2.</strong> Капс (5+ слов) — мут 1 час.</p></div>
+                <div class="rule-item"><p><strong>2.3.</strong> Оскорбления игроков — мут от 1 часа.</p></div>
+                <div class="rule-item"><p><strong>2.4.</strong> Оскорбления родни — мут 2 часа.</p></div>
+                <div class="rule-item"><p><strong>2.5.</strong> Оскорбления модерации — мут 3 часа.</p></div>
+                <div class="rule-item"><p><strong>2.6.</strong> Оскорбления администрации — мут 12 часов.</p></div>
+                <div class="rule-item"><p><strong>2.7.</strong> Разжигание ненависти — мут 12 часов.</p></div>
+                <div class="rule-item"><p><strong>2.8.</strong> Реклама сторонних ресурсов — бан 2 дня.</p></div>
+                <div class="rule-item"><p><strong>2.9.</strong> Призывы к суициду — мут 6 часов.</p></div>
+                <div class="rule-item"><p><strong>2.10.</strong> «Я пошутил» не работает.</p></div>
+            </div>
+            <div class="rules-section fade-in">
+                <h2>Аккаунт</h2>
+                <div class="rule-item"><p><strong>3.1.</strong> Аккаунт — твоя ответственность.</p></div>
+                <div class="rule-item"><p><strong>3.2.</strong> Продажа и передача аккаунтов — бан навсегда.</p></div>
+                <div class="rule-item"><p><strong>3.3.</strong> Донат привязан к нику. Перенести нельзя.</p></div>
+            </div>
+            <div class="rules-section fade-in">
+                <h2>Игра и читы</h2>
+                <div class="rule-item"><p><strong>4.1.</strong> Читы, макросы — бан 30 дней.</p></div>
+                <div class="rule-item"><p><strong>4.2.</strong> Запрещённые моды — бан 14 дней.</p></div>
+                <div class="rule-item"><p><strong>4.3.</strong> Очистка корзины перед проверкой — бан 30 дней.</p></div>
+                <div class="rule-item"><p><strong>4.4.</strong> Продажа читов — бан навсегда.</p></div>
+                <div class="rule-item"><p><strong>4.5.</strong> Обман администрации — бан навсегда.</p></div>
+                <div class="rule-item"><p><strong>4.6.</strong> Попытки обрушить сервер — бан навсегда.</p></div>
+                <div class="rule-item"><p><strong>4.7.</strong> Выдача себя за админа — бан 7 дней.</p></div>
+                <div class="rule-item"><p><strong>4.8.</strong> Использование багов — бан от 3 дней.</p></div>
+                <div class="rule-item"><p><strong>4.9.</strong> Подстрекательство — бан 7 дней.</p></div>
+                <div class="rule-item"><p><strong>4.10.</strong> Слив личной информации — бан 3 месяца.</p></div>
+            </div>
+            <div class="rules-section fade-in">
+                <h2>Проверки</h2>
+                <div class="rule-item"><p><strong>5.1.</strong> Выполняй требования проверяющего.</p></div>
+                <div class="rule-item"><p><strong>5.2.</strong> Нельзя удалять файлы, чистить корзину.</p></div>
+                <div class="rule-item"><p><strong>5.3.</strong> «Крашнул майн», «был в AFK» — не оправдание.</p></div>
+                <div class="rule-item"><p><strong>5.4.</strong> Нельзя снимать проверку без разрешения.</p></div>
+                <div class="rule-item"><p><strong>5.5.</strong> Странные просьбы — отключайся и пиши администрации.</p></div>
+                <div class="rule-item"><p><strong>5.6.</strong> Список программ для проверки — в Discord.</p></div>
+            </div>
+            <div class="rules-section fade-in">
+                <h2>Для игроков с привилегиями</h2>
+                <div class="rule-item"><p><strong>6.1.</strong> Нельзя размучивать себя, если мут выдан правильно.</p></div>
+                <div class="rule-item"><p><strong>6.2.</strong> Нельзя банить/мутить без причины.</p></div>
+                <div class="rule-item"><p><strong>6.3.</strong> Нельзя банить/мутить без доказательств.</p></div>
+                <div class="rule-item"><p><strong>6.4.</strong> Нельзя ставить неправильное время наказания.</p></div>
+                <div class="rule-item"><p><strong>6.5.</strong> Нельзя разбанивать/размучивать без доказательств.</p></div>
+                <div class="rule-item"><p style="color: #ff3333; margin-top: 10px;"><strong>Нарушение — снятие прав.</strong></p></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="support-page" class="page" style="display: none;">
+        <div class="support-container">
+            <h1 class="support-title">Поддержка</h1>
+
+            <div class="support-discord fade-in">
+                <h3>Нужна помощь?</h3>
+                <p>Напиши нам в Discord — мы ответим как только освободимся</p>
+                <a class="discord-link" onclick="window.open('https://discord.gg/YOUR_LINK', '_blank')">Перейти в Discord</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">ProjectPvp</div>
+            
+            <div class="footer-social">
+                <a onclick="window.open('https://discord.gg/YOUR_LINK', '_blank')" title="Discord" class="social-link">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                    <span>Discord</span>
+                </a>
+                <a onclick="window.open('https://vk.com/YOUR_LINK', '_blank')" title="ВКонтакте" class="social-link">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm3.08 14.27h-1.46c-.55 0-.72-.44-1.71-1.44-.87-.84-1.25-.95-1.46-.95-.3 0-.38.08-.38.5v1.31c0 .35-.11.56-1.05.56-1.55 0-3.27-.94-4.47-2.69-1.82-2.57-2.32-4.5-2.32-4.9 0-.21.08-.4.5-.4h1.46c.37 0 .51.17.66.57.72 2.08 1.92 3.9 2.41 3.9.18 0 .27-.08.27-.55V9.84c-.06-.98-.58-1.06-.58-1.41 0-.17.14-.34.37-.34h2.3c.31 0 .42.17.42.54v2.91c0 .31.14.42.23.42.18 0 .34-.11.68-.45 1.05-1.18 1.8-3 1.8-3 .1-.21.27-.4.64-.4h1.46c.44 0 .54.23.44.54-.18.84-1.93 3.33-1.93 3.33-.15.24-.21.35 0 .62.15.21.66.63 1 1.02.62.71 1.1 1.31 1.23 1.72.13.41-.07.62-.48.62z"/></svg>
+                    <span>ВКонтакте</span>
+                </a>
+                <a onclick="window.open('https://t.me/YOUR_LINK', '_blank')" title="Telegram" class="social-link">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                    <span>Telegram</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer-legal">
+            <p>Сервер ProjectPvp не является официальным продуктом Mojang AB.</p>
+            <p>Самозанятый Миколаенко Максим Витальевич • ИНН 772986721844</p>
+            <p>Копирование контента с сайта и серверов проекта запрещено.</p>
+        </div>
+        
+        <p class="footer-copy">© 2026 ProjectPvp. Все права защищены.</p>
+    </footer>
+
+    <div class="copy-message" id="copyMsg">✓ IP скопирован!</div>
+
+    <script>
+        // Частицы на фоне
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 51, 51, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.min(50, (canvas.width * canvas.height) / 15000);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Частицы при клике (не на кнопках/ссылках)
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button, a, .nav-indicator')) return;
+            
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'click-particle';
+                const angle = (Math.PI * 2 * i) / 8;
+                const distance = 30 + Math.random() * 20;
+                particle.style.left = e.clientX + 'px';
+                particle.style.top = e.clientY + 'px';
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+        });
+
+        // JS Tilt для карточек привилегий — слушатель на самой карточке, не на document
+        function initTilt() {
+            document.querySelectorAll('.priv-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    // Не наклоняем если карточка раскрыта (чтобы не мешать чтению)
+                    if (card.classList.contains('expanded')) return;
+                    
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Проверяем что мышь действительно над карточкой
+                    if (x < 0 || x > rect.width || y < 0 || y > rect.height) return;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 25;
+                    const rotateY = (centerX - x) / 25;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                });
+            });
+        }
+
+        // Данные привилегий
+        const privileges = [
+            { id: 'baron', class: 'priv-baron', name: 'Барон', price: 8, discount: null,
+              short: ['Кит Барона', 'Зарплата /salary', '2 точки дома', '6 слотов аукциона'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Барона' },
+                { cmd: '/salary', desc: 'Получить зарплату' },
+                { cmd: '/crawl', desc: 'Принять положение лежа' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Точек дома: 2', 'Блоков региона: 3', 'Слотов на аукционе: 6', 'Задержка телепорта: 7 сек'],
+              inherits: null
+            },
+            { id: 'strazh', class: 'priv-strazh', name: 'Страж', price: 19, discount: 5,
+              short: ['Кит Стража', 'Донат-чат /dchat', '/suicide', '7 слотов аукциона'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Стража' },
+                { cmd: '/suicide', desc: 'Покончить жизнь самоубийством' },
+                { cmd: '/dchat', desc: 'Донат-чат' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Точек дома: 2', 'Блоков региона: 3', 'Слотов на аукционе: 7', 'Задержка телепорта: 6 сек'],
+              inherits: 'Барон'
+            },
+            { id: 'geroy', class: 'priv-geroy', name: 'Герой', price: 40, discount: 10,
+              short: ['Кит Героя', '/hat — блок на голову', '/top — телепорт вверх', '8 слотов аукциона'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Героя' },
+                { cmd: '/hat', desc: 'Надеть блок на голову' },
+                { cmd: '/top', desc: 'Телепортация вверх' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Точек дома: 2', 'Блоков региона: 4', 'Слотов на аукционе: 8', 'Задержка телепорта: 6 сек'],
+              inherits: 'Страж'
+            },
+            { id: 'aspid', class: 'priv-aspid', name: 'Аспид', price: 66, discount: 15,
+              short: ['Кит Аспида', '/heal + /feed', '/clear инвентарь', '/me — реакции в чат'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Аспида' },
+                { cmd: '/clear', desc: 'Очистить инвентарь' },
+                { cmd: '/feed', desc: 'Восстановить голод' },
+                { cmd: '/heal', desc: 'Восстановить здоровье' },
+                { cmd: '/me', desc: 'Написать в чат реакции' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Точек дома: 2', 'Блоков региона: 4', 'Слотов на аукционе: 9', 'Задержка телепорта: 5 сек'],
+              inherits: 'Герой'
+            },
+            { id: 'squid', class: 'priv-squid', name: 'Сквид', price: 83, discount: 20,
+              short: ['Кит Сквида', '/back + /ec + /wbench', 'Цветной чат', 'Сохранение опыта'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Сквида' },
+                { cmd: '/back', desc: 'Вернуться на место смерти' },
+                { cmd: '/ec', desc: 'Открыть Эндер Сундук' },
+                { cmd: '/wbench', desc: 'Портативный верстак' },
+                { cmd: '/ad', desc: 'Чат рекламы' },
+                { cmd: '/buy', desc: 'Чат покупки' },
+                { cmd: '/sell', desc: 'Чат продажи' },
+                { cmd: '/name', desc: 'Изменить название предмета' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Сохранение опыта при смерти', 'Возможность писать цветным', 'Точек дома: 3', 'Блоков региона: 5', 'Слотов на аукционе: 10', 'Задержка телепорта: 5 сек'],
+              inherits: 'Аспид'
+            },
+            { id: 'glava', class: 'priv-glava', name: 'Глава', price: 98, discount: 25,
+              short: ['Кит Главы', '/bc — объявления', '/heal и /feed других', 'Починка 1x /fix'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Главы' },
+                { cmd: '/bc', desc: 'Чат объявлений' },
+                { cmd: '/eext', desc: 'Получить себя командой' },
+                { cmd: '/msgtoggle', desc: 'Отключить личные сообщения' },
+                { cmd: '/paytoggle', desc: 'Отключить получение платежей' },
+                { cmd: '/ptoggle', desc: 'Отключить телепортации' },
+                { cmd: '/exp', desc: 'Бесплатный опыт' },
+                { cmd: '/feed Ник', desc: 'Покормить игрока' },
+                { cmd: '/heal Ник', desc: 'Вылечить игрока' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Починка предметов: 1 (/fix)', 'Точек дома: 3', 'Блоков региона: 6', 'Слотов на аукционе: 11', 'Задержка телепорта: 4 сек'],
+              inherits: 'Сквид'
+            },
+            { id: 'elita', class: 'priv-elita', name: 'Элита', price: 112, discount: 30,
+              short: ['Кит Элиты', '/time + /weather', 'Фейерверк /firework', 'Починка 3x /fix'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Элиты' },
+                { cmd: '/time', desc: 'Установить время' },
+                { cmd: '/weather', desc: 'Установить погоду' },
+                { cmd: '/loom', desc: 'Ткацкий станок' },
+                { cmd: '/carttable', desc: 'Стол картографа' },
+                { cmd: '/beezooka', desc: 'Выстрел пчелой' },
+                { cmd: '/kittycannon', desc: 'Выстрел котом' },
+                { cmd: '/firework', desc: 'Настроить фейерверк' },
+                { cmd: '/name', desc: 'Изменить название цветным' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Починка предметов: 3 (/fix)', 'Точек дома: 3', 'Блоков региона: 7', 'Слотов на аукционе: 13', 'Задержка телепорта: 4 сек'],
+              inherits: 'Глава'
+            },
+            { id: 'titan', class: 'priv-titan', name: 'Титан', price: 169, discount: 35,
+              short: ['Кит Титана', '/jump — телепорт взгляда', 'Варпы /setwarp', 'Не кикает за АФК'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Титана' },
+                { cmd: '/jump', desc: 'Телепортация на блок взгляда' },
+                { cmd: '/afk', desc: 'Режим "Пок"' },
+                { cmd: '/setwarp', desc: 'Установить точку варпа' },
+                { cmd: '/delwarp', desc: 'Удалить точку варпа' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Не кикает за АФК', 'Починка предметов: 5 (/fix)', 'Точек дома: 4', 'Блоков региона: 8', 'Слотов на аукционе: 15', 'Задержка телепорта: 3 сек'],
+              inherits: 'Элита'
+            },
+            { id: 'princ', class: 'priv-princ', name: 'Принц', price: 289, discount: 40,
+              short: ['Кит Принца', 'Стол кузнеца /smithtable', 'Камнерез + Точило', 'Починка 9x /fix'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Принца' },
+                { cmd: '/smithtable', desc: 'Открыть стол кузнеца' },
+                { cmd: '/stonecutter', desc: 'Открыть камнерез' },
+                { cmd: '/grindstone', desc: 'Открыть точило' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Починка предметов: 9 (/fix)', 'Точек дома: 5', 'Блоков региона: 9', 'Слотов на аукционе: 17', 'Задержка телепорта: 3 сек'],
+              inherits: 'Титан'
+            },
+            { id: 'knyaz', class: 'priv-knyaz', name: 'Князь', price: 499, discount: 45,
+              short: ['Кит Князя', '/fly — полёт', '/enchant — зачарование', 'Починка 18x /fix'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Князя' },
+                { cmd: '/fly', desc: 'Режим полёта' },
+                { cmd: '/amute Ник', desc: 'Выдать мут игроку' },
+                { cmd: '/unmute Ник', desc: 'Размутить игрока' },
+                { cmd: '/enchant', desc: 'Зачаровать предмет в руке' },
+                { cmd: '/anvil', desc: 'Портативная наковальня' },
+                { cmd: '/speed', desc: 'Скорость передвижения' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Починка предметов: 18 (/fix)', 'Точек дома: 7', 'Блоков региона: 10', 'Слотов на аукционе: 20', 'Задержка телепорта: 2 сек'],
+              inherits: 'Принц'
+            },
+            { id: 'gercog', class: 'priv-gercog', name: 'Герцог', price: 699, discount: 50,
+              short: ['Кит Герцога', 'Вход на полный сервер', '0 сек телепорт', 'Починка 27x /fix'],
+              commands: [
+                { cmd: '/kit', desc: 'Получить наборы Герцога' },
+                { cmd: '/salary', desc: 'Получить зарплату' },
+                { cmd: '/exp', desc: 'Получить бесплатный опыт' },
+                { cmd: '/donatshop', desc: 'Доступ к приватному магазину для донатеров' }
+              ],
+              features: ['Вход на заполненный сервер', 'Нет задержки телепортации (0 сек)', 'Починка предметов: 27 (/fix)', 'Точек дома: 10', 'Блоков региона: 15', 'Слотов на аукционе: 30'],
+              inherits: 'Князь'
+            }
+        ];
+
+        function renderPrivileges() {
+            const grid = document.getElementById('privileges-grid');
+            grid.innerHTML = '';
+            privileges.forEach((priv, index) => {
+                const shortList = priv.short.map(f => `<div>✦ ${f}</div>`).join('');
+                const commandsList = priv.commands.map(c => {
+                    let desc = c.desc;
+                    if (c.cmd === '/donatshop' && priv.discount) {
+                        desc = `Доступ к приватному магазину для донатеров (скидка ${priv.discount}%)`;
+                    }
+                    return `<li><code>${c.cmd}</code> — ${desc}</li>`;
+                }).join('');
+                const featuresList = priv.features.map(f => `<li>${f}</li>`).join('');
+                const inheritsHtml = priv.inherits ? `<div class="details-inherits">✅ Также включает все возможности привилегии "${priv.inherits}"</div>` : '';
+                
+                const card = document.createElement('div');
+                card.className = `priv-card ${priv.class} fade-in`;
+                card.style.transitionDelay = `${index * 0.05}s`;
+                card.innerHTML = `
+                    <div class="priv-name">${priv.name}</div>
+                    <div class="priv-price">${priv.price}<span>₽</span></div>
+                    <div class="priv-features-short">${shortList}</div>
+                    <div class="priv-details">
+                        <div class="details-section">
+                            <div class="details-title">Команды</div>
+                            <ul class="details-list">${commandsList}</ul>
+                        </div>
+                        <div class="details-section">
+                            <div class="details-title">Возможности</div>
+                            <ul class="details-list">${featuresList}</ul>
+                        </div>
+                        ${inheritsHtml}
+                    </div>
+                    <div class="priv-buttons">
+                        <button class="buy-btn" onclick="buyItem('${priv.name}', ${priv.price})">Купить</button>
+                        <button class="details-btn" onclick="toggleDetails(this)">Подробнее</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            setTimeout(() => {
+                observeFadeIn();
+                initTilt(); // Инициализируем tilt после рендера
+            }, 100);
+        }
+
+        function toggleDetails(btn) {
+            const card = btn.closest('.priv-card');
+            card.classList.toggle('expanded');
+            btn.textContent = card.classList.contains('expanded') ? 'Свернуть' : 'Подробнее';
+        }
+
+        function moveIndicator(element) {
+            const indicator = document.getElementById('navIndicator');
+            const nav = element.parentElement;
+            const navRect = nav.getBoundingClientRect();
+            const elemRect = element.getBoundingClientRect();
+            indicator.style.left = elemRect.left - navRect.left + 'px';
+            indicator.style.width = elemRect.width + 'px';
+        }
+
+        function setActiveMenu(pageId, clickedElement) {
+            document.querySelectorAll('nav a:not(.discord-btn)').forEach(item => item.classList.remove('active'));
+            if (clickedElement && !clickedElement.classList.contains('discord-btn')) {
+                clickedElement.classList.add('active');
+                moveIndicator(clickedElement);
+            } else {
+                const activeItem = document.querySelector(`nav a[data-page="${pageId}"]`);
+                if (activeItem) { activeItem.classList.add('active'); moveIndicator(activeItem); }
+            }
+        }
+
+        function showPage(pageId, clickedElement) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            const targetPage = document.getElementById(pageId + '-page');
+            targetPage.style.display = 'block';
+            targetPage.classList.remove('page');
+            void targetPage.offsetWidth;
+            targetPage.classList.add('page');
+            setActiveMenu(pageId, clickedElement);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                observeFadeIn();
+                initTilt(); // Переинициализируем tilt после смены страницы
+            }, 100);
+        }
+
+        function copyIP() {
+            navigator.clipboard.writeText("ProjectPvp.su").then(() => {
+                const msg = document.getElementById("copyMsg");
+                msg.textContent = "✓ IP скопирован!";
+                msg.style.display = "block";
+                setTimeout(() => { msg.style.display = "none"; }, 2000);
+            });
+        }
+
+        function buyItem(name, price) {
+            const msg = document.getElementById("copyMsg");
+            msg.textContent = `${name} (${price}₽) — скоро будет доступно`;
+            msg.style.display = "block";
+            setTimeout(() => { msg.style.display = "none"; }, 2500);
+        }
+
+        function observeFadeIn() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-in:not(.visible)').forEach(el => observer.observe(el));
+        }
+
+        window.onload = function() {
+            renderPrivileges();
+            const homeLink = document.querySelector('nav a[data-page="home"]');
+            setActiveMenu('home', homeLink);
+            observeFadeIn();
+        };
+        
+        window.onresize = function() {
+            const activeItem = document.querySelector('nav a.active');
+            if (activeItem) moveIndicator(activeItem);
+            resizeCanvas();
+            initParticles();
+        };
+    </script>
+
+</body>
+</html>
